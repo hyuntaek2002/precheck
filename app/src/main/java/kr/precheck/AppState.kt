@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Looper
 
 // 서비스 → 화면으로 넘기는 상태. 프로세스 하나라 메모리 공유로 충분하다
-// ponytail: 옵저버 직접 구현. 화면이 늘면 LiveData/Flow로
+// 옵저버 직접 구현. 화면이 늘면 LiveData/Flow로
 class Observable<T>(initial: T) {
     private val listeners = mutableSetOf<(T) -> Unit>()
     var value: T = initial

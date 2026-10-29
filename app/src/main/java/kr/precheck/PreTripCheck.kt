@@ -17,7 +17,7 @@ data class CheckResult(val routeKm: Float, val rangeKm: Float?, val items: List<
 object PreTripCheck {
     private const val TAG = "PreTripCheck"
     private const val MARGIN = 1.2f // 남은 주행 가능 거리가 경로의 1.2배는 돼야 안심
-    private const val RESERVE_KM = 20f // 경로와 무관하게 이보다 짧으면 먼저 채우라고 한다 (ponytail: 고정값, 차종별 조정 여지)
+    private const val RESERVE_KM = 20f // 경로와 무관하게 이보다 짧으면 먼저 채우라고 한다 (고정값, 차종별 조정 여지)
     private const val ARRIVAL_MIN_SOC = 15 // 내비가 계산한 도착 시 배터리 잔량(%)이 이보다 낮으면 가는 길에 충전
 
     // arrivalEnergy: 내비가 경로 시작 때 준 도착 시 배터리 잔량. 에뮬레이터 확인: Wh (77,358 = 77.4kWh의 99%). 모르면 -1 → 거리 어림(1.2배)으로 판단
@@ -33,7 +33,7 @@ object PreTripCheck {
             if (pending.decrementAndGet() != 0) return
             val km = rangeKm
             val what = if (isEv) "충전" else "주유"
-            // ponytail: 100 이하면 이미 퍼센트로 보고 그대로 쓴다(실차 단위가 다를 가능성 대비)
+            // 100 이하면 이미 퍼센트로 보고 그대로 쓴다 (실차 단위가 다를 가능성 대비)
             val cap = capacityWh
             val arrivalSoc = when {
                 arrivalEnergy < 0 -> -1

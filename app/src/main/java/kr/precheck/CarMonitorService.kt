@@ -40,7 +40,7 @@ class CarMonitorService : Service() {
         private const val CH_FG = "fg"
         private const val CH_ALERT = "alert"
         private const val REPEAT_DAYS = 7L   // 같은 경고가 이 기간에
-        private const val REPEAT_COUNT = 3   // 이만큼 반복되면 정비소를 권한다 (ponytail: 고정값)
+        private const val REPEAT_COUNT = 3   // 이만큼 반복되면 정비소를 권한다 (고정값)
 
         const val ACTION_CHECK_NOW = "kr.precheck.CHECK_NOW"
         const val ACTION_SERVICED = "kr.precheck.SERVICED"
@@ -233,7 +233,7 @@ class CarMonitorService : Service() {
         record("경고등", logTitle, info.meaning)
         if (info.severity != Severity.INFO) say("${info.title}. ${info.severity.label}. $todo")
         // 에뮬레이터 검증: 외부 앱 헤드업은 msg·call·navigation 카테고리만 허용. 경로 안내 버튼이 있는 경고만 navigation으로 올린다
-        // ponytail: 심사에서 카테고리 오용으로 볼 수 있음. 설명회에서 차량 경고용 헤드업 허용 여부 확인 후 조정
+        // navigation 카테고리 오용으로 볼 수 있음. 차량 경고용 헤드업 허용 여부 확인 후 조정
         val category = if (action != null && info.severity != Severity.INFO) Notification.CATEGORY_NAVIGATION else null
         notify(2 + name.hashCode().and(0xffff), "${info.severity.emoji} ${info.title} · ${info.severity.label}", todo, action, info.severity, category)
     }

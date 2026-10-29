@@ -3,7 +3,7 @@ package kr.precheck
 import android.content.Context
 
 // 소모품 교체 주기. 정비소 다녀온 뒤 버튼 한 번으로 "언제(몇 km에서) 갈았는지"를 남기고, 출발 전 점검이 때가 되면 알려 준다
-// ponytail: 주기는 고정값. 차종·설명서 기준으로 조정할 여지
+// 주기는 고정값. 차종·설명서 기준으로 조정할 여지
 object Maintenance {
     data class Item(val name: String, val intervalKm: Int)
 

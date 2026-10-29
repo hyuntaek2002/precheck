@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 앱 아이콘: 둥근 남색 바탕에 체크 표시 (출발 전 점검) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#1F3A5F"
+        android:pathData="M24,0 L84,0 A24,24 0 0 1 108,24 L108,84 A24,24 0 0 1 84,108 L24,108 A24,24 0 0 1 0,84 L0,24 A24,24 0 0 1 24,0 Z" />
+    <path android:fillColor="#7AC8FF"
+        android:pathData="M30,56 L48,74 L80,36" android:strokeColor="#7AC8FF" android:strokeWidth="12"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+</vector>

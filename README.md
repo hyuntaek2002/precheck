@@ -65,4 +65,4 @@ adb shell am start -n kr.precheck/.MainActivity -a kr.precheck.DEBUG_CLEAR
 - 주행 중 화면은 distractionOptimized 선언으로 엽니다. 심사 기준에 따라 화면은 막고 음성·알림만 쓰도록 바꿀 수 있습니다.
 - 도착 시 배터리 잔량(remainDestinationChargingValue)은 Wh 단위라 배터리 용량으로 나눠 퍼센트를 냅니다.
 - TTS 로케일은 ko-KR이어야 합니다. ko만 주면 엔진이 거부합니다.
-- 에뮬레이터는 전기차 기준이라 내연기관 경로는 검증하지 못했습니다.
+- 에뮬레이터는 전기차뿐이라 내연기관차의 주유 안내는 확인하지 못했습니다.

@@ -61,6 +61,7 @@ class CarMonitorService : Service() {
     private var navigating = false
     private var lastOdometer: Float? = null
     private var lastAutoCheck = 0L
+    private var base = "차 상태 감시 중"   // 머리말 상태의 앞부분. 경고등 권한이 없으면 바뀐다
 
     // 프로세스가 다시 떠도 이어지도록 파일에 둔다: 이미 알린 경고등, 켜진 시각, 설명을 이미 보여 준 기능 표시등
     private val prefs by lazy { getSharedPreferences("state", Context.MODE_PRIVATE) }
@@ -87,6 +88,13 @@ class CarMonitorService : Service() {
         override fun onFailed(e: Exception) { Log.w(TAG, "telltale failed", e) }
     }
 
+    // 경고등은 구독(registerTelltales)도 읽기(getTelltalesInfo)도 PRIVATE_CAR_SAFETY가 필요하다 (SDK 2.3.2 런타임 검사, 에뮬레이터 확인).
+    // 없으면 경고등 기능은 멈추고 출발 전 점검(CAR_SAFETY 범위)만 돈다
+    private fun startTelltales() {
+        try { vehicle.getSafety().registerTelltales(telltaleListener) }
+        catch (e: SecurityException) { Log.w(TAG, "registerTelltales denied", e); base = "경고등 권한 없음" }
+    }
+
     // 기어가 P가 아니면 주행 중: 화면은 꼭 필요한 것만 보여 준다.
     // P에서 빠져나오는 순간 = 출발. 내비를 안 찍어도 차 상태만 점검하고, 문제 있을 때만 말한다
     private val gearListener = object : GearSelectionListener {
@@ -109,8 +117,10 @@ class CarMonitorService : Service() {
     private fun onTelltaleOff(name: String) {
         val since = onSince(name)
         if (since == 0L) return   // 기능 표시등(켜진 시각을 안 남김)은 기록하지 않는다
-        prefs.edit().remove("since_$name").apply()
-        record("경고등 꺼짐", "${TelltaleBook.titleOf(name)} 꺼짐", "${duration(System.currentTimeMillis() - since)} 동안 켜져 있었어요.")
+        val gap = prefs.getBoolean("gap_$name", false)   // 켜져 있는 동안 서비스가 다시 떴다: 연속 관측이 아니다
+        prefs.edit().remove("since_$name").remove("gap_$name").apply()
+        val d = duration(System.currentTimeMillis() - since)
+        record("경고등 꺼짐", "${TelltaleBook.titleOf(name)} 꺼짐", if (gap) "켜진 지 $d 뒤에 꺼진 걸 확인했어요. 중간에 관측이 끊겼어요." else "$d 동안 켜져 있었어요.")
         AppState.repeats.value = AppState.repeats.value - name
     }
 
@@ -137,14 +147,17 @@ class CarMonitorService : Service() {
         onCreateForeground()
 
         vehicle = Vehicle(this).also { it.initialize() }
-        vehicle.getSafety().registerTelltales(telltaleListener)
+        // 서비스가 뜨기 전부터 켜져 있던 경고등: 그 사이는 관측하지 못했다고 표시해 둔다
+        prefs.all.keys.filter { it.startsWith("since_") }.forEach { prefs.edit().putBoolean("gap_" + it.removePrefix("since_"), true).apply() }
+        startTelltales()
+        vehicle.getEvBattery().getEvBatteryStateOfCharge({ AppState.isEv.value = it != null && it > 0 }, {})
         vehicle.getGear().registerGearSelection(gearListener)
         vehicle.getOdometer().registerDistanceDriven(odometerListener)
         vehicle.getOdometer().getCurrentDistanceDriven({ lastOdometer = it; AppState.odometerKm.value = it }, {})
         navi = NaviHelper(this)
-        AppState.status.value = "차 상태 감시 중"
-        navi.initialize({ navi.addListener(naviListener); Log.i(TAG, "navi ready"); AppState.status.value = "차 상태 감시 중 · 내비 연결됨" },
-            { Log.w(TAG, "navi init failed", it); AppState.status.value = "차 상태 감시 중 · 내비 연결 안 됨" })
+        AppState.status.value = base
+        navi.initialize({ navi.addListener(naviListener); Log.i(TAG, "navi ready"); AppState.status.value = "$base · 내비 연결됨" },
+            { Log.w(TAG, "navi init failed", it); AppState.status.value = "$base · 내비 연결 안 됨" })
         initTts()
     }
 
@@ -219,7 +232,7 @@ class CarMonitorService : Service() {
         val info = TelltaleBook.infoOf(d)
         val name = TelltaleBook.nameOf(d.type)
         if (info.severity == Severity.INFO) { if (name in seenInfo) return; seenInfo = seenInfo + name } // 기능 표시등은 처음 한 번만, 기록도 안 남긴다
-        else prefs.edit().putLong("since_$name", System.currentTimeMillis()).apply()
+        else prefs.edit().putLong("since_$name", System.currentTimeMillis()).remove("gap_$name").apply()
 
         // 같은 경고가 최근에 반복되면 "껐다 켜지는" 고장: 정비소를 권한다
         val since = System.currentTimeMillis() - REPEAT_DAYS * 86_400_000
@@ -242,7 +255,7 @@ class CarMonitorService : Service() {
     private fun onServiced(item: String) {
         val km = lastOdometer ?: 0f
         Maintenance.serviced(this, item, km)
-        val next = km + (Maintenance.items.firstOrNull { it.name == item }?.intervalKm ?: 0)
+        val next = km + (Maintenance.all.firstOrNull { it.name == item }?.intervalKm ?: 0)
         record("정비", "$item 교체", "${"%,d".format(km.toInt())}km에서 교체했어요. 다음은 ${"%,d".format(next.toInt())}km 즈음이에요.")
     }
 

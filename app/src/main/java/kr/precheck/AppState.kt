@@ -22,4 +22,5 @@ object AppState {
     val driving = Observable(false)                             // 기어가 P가 아니면 true: 화면을 줄인다
     val repeats = Observable<Map<String, Int>>(emptyMap())      // 최근에 반복된 경고등 이름 → 횟수
     val odometerKm = Observable<Float?>(null)                   // 누적 주행거리(km). 소모품 주기 계산용
+    val isEv = Observable(false)                                // 전기차면 true: 엔진오일 항목을 숨긴다
 }

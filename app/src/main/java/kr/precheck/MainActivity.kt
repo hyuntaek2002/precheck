@@ -80,7 +80,7 @@ class MainActivity : Activity() {
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(44, 40, 44, 40); background = rounded(CARD, 24f) }
         box.addView(text("무엇을 교체했나요?", H2, bold = true))
         box.addView(text("지금 ${AppState.odometerKm.value?.let { "%,d".format(it.toInt()) } ?: "?"}km", BODY, color = MUTED))
-        Maintenance.items.forEach { item ->
+        Maintenance.items(AppState.isEv.value).forEach { item ->
             box.addView(button(item.name, primary = false) { CarMonitorService.serviced(this, item.name); d.dismiss() }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 16 })
         }
         box.addView(button("취소", primary = true) { d.dismiss() }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 28 })

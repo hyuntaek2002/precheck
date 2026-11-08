@@ -14,7 +14,7 @@ Pleos Connect 차량 관리 앱입니다. 현대자동차그룹 차량용 앱 �
 
 앱을 열지 않아도 됩니다. 시동을 걸면 스스로 시작하고, 주행 중에는 꼭 필요한 것만 보여 줍니다.
 
-시연 영상: [docs/demo.mp4](docs/demo.mp4) · 기획서: [docs/기획서.md](docs/기획서.md)
+시연 영상: [YouTube](https://youtu.be/7l6OO88eovc) · [docs/demo.mp4](docs/demo.mp4) · 기획서: [docs/기획서.md](docs/기획서.md)
 
 ## 사용 SDK
 
